@@ -33,19 +33,19 @@ var tr = i18n.Tr
 // to execute further operations a valid Instance is mandatory.
 // If Init returns errors they're printed only.
 func CreateAndInit() *rpc.Instance {
-	inst, _ := CreateAndInitWithProfile("", nil)
+	inst, _ := CreateAndInitWithProfile("", nil, "")
 	return inst
 }
 
 // CreateAndInitWithProfile returns a new initialized instance using the given profile of the given sketch.
 // If Create fails the CLI prints an error and exits since to execute further operations a valid Instance is mandatory.
 // If Init returns errors they're printed only.
-func CreateAndInitWithProfile(profileName string, sketchPath *paths.Path) (*rpc.Instance, *rpc.Profile) {
+func CreateAndInitWithProfile(profileName string, sketchPath *paths.Path, packageName string) (*rpc.Instance, *rpc.Profile) {
 	instance, err := Create()
 	if err != nil {
 		feedback.Fatal(tr("Error creating instance: %v", err), feedback.ErrGeneric)
 	}
-	profile := InitWithProfile(instance, profileName, sketchPath)
+	profile := InitWithProfile(instance, profileName, sketchPath, packageName)
 	return instance, profile
 }
 
@@ -64,13 +64,13 @@ func Create() (*rpc.Instance, error) {
 // Package and library indexes files are automatically updated if the
 // CLI is run for the first time.
 func Init(instance *rpc.Instance) {
-	InitWithProfile(instance, "", nil)
+	InitWithProfile(instance, "", nil, "")
 }
 
 // InitWithProfile initializes instance by loading libraries and platforms specified in the given profile of the given sketch.
 // In case of loading failures return a list of errors for each platform or library that we failed to load.
 // Required Package and library indexes files are automatically downloaded.
-func InitWithProfile(instance *rpc.Instance, profileName string, sketchPath *paths.Path) *rpc.Profile {
+func InitWithProfile(instance *rpc.Instance, profileName string, sketchPath *paths.Path, packageName string) *rpc.Profile {
 	// In case the CLI is executed for the first time
 	if err := FirstUpdate(instance); err != nil {
 		feedback.Warning(tr("Error initializing instance: %v", err))
@@ -84,6 +84,7 @@ func InitWithProfile(instance *rpc.Instance, profileName string, sketchPath *pat
 	if sketchPath != nil {
 		initReq.SketchPath = sketchPath.String()
 		initReq.Profile = profileName
+		initReq.PackageName = packageName
 	}
 	var profile *rpc.Profile
 	err := commands.Init(initReq, func(res *rpc.InitResponse) {

@@ -277,7 +277,7 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 
 		// Load Platforms
 		if profile == nil {
-			for _, err := range pmb.LoadHardware() {
+			for _, err := range pmb.LoadHardware(req.GetPackageName()) {
 				s := &arduino.PlatformLoadingError{Cause: err}
 				responseError(s.ToRPCStatus())
 			}
@@ -382,9 +382,11 @@ func Init(req *rpc.InitRequest, responseCallback func(r *rpc.InitResponse)) erro
 		}
 	}
 
-	if err := lm.LoadIndex(); err != nil {
-		s := status.Newf(codes.FailedPrecondition, tr("Loading index file: %v"), err)
-		responseError(s)
+	if req.GetPackageName() == "" {
+		if err := lm.LoadIndex(); err != nil {
+			s := status.Newf(codes.FailedPrecondition, tr("Loading index file: %v"), err)
+			responseError(s)
+		}
 	}
 
 	if profile == nil {

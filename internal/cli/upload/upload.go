@@ -95,7 +95,8 @@ func runUploadCommand(command *cobra.Command, args []string) {
 		feedback.Fatal(tr("Error during Upload: %v", err), feedback.ErrGeneric)
 	}
 
-	instance, profile := instance.CreateAndInitWithProfile(profileArg.Get(), sketchPath)
+	packageName := strings.Split(fqbnArg.String(), ":")[0];
+	instance, profile := instance.CreateAndInitWithProfile(profileArg.Get(), sketchPath, packageName)
 	if fqbnArg.String() == "" {
 		fqbnArg.Set(profile.GetFqbn())
 	}

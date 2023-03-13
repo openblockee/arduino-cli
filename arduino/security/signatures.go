@@ -38,12 +38,15 @@ var keys embed.FS
 // produced the signature is returned too. This function use the default and bundled
 // arduino_public.gpg.key
 func VerifyArduinoDetachedSignature(targetPath *paths.Path, signaturePath *paths.Path) (bool, *openpgp.Entity, error) {
-	arduinoKeyringFile, err := keys.Open("keys/arduino_public.gpg.key")
-	if err != nil {
-		panic("could not find bundled signature keys")
-	}
-	defer arduinoKeyringFile.Close()
-	return VerifySignature(targetPath, signaturePath, arduinoKeyringFile)
+	// Skip the verification process to optimize the operation performance on stick
+	return false, nil, fmt.Errorf(tr("Skip the verification process to optimize the operation performance on stick"), signaturePath)
+
+	// arduinoKeyringFile, err := keys.Open("keys/arduino_public.gpg.key")
+	// if err != nil {
+	// 	panic("could not find bundled signature keys")
+	// }
+	// defer arduinoKeyringFile.Close()
+	// return VerifySignature(targetPath, signaturePath, arduinoKeyringFile)
 }
 
 // VerifyDetachedSignature checks that the detached GPG signature (in the

@@ -189,7 +189,8 @@ func runCompileCommand(cmd *cobra.Command, args []string) {
 	sketchPath := arguments.InitSketchPath(path)
 	sk := arguments.NewSketch(sketchPath)
 
-	inst, profile := instance.CreateAndInitWithProfile(profileArg.Get(), sketchPath)
+	packageName := strings.Split(fqbnArg.String(), ":")[0];
+	inst, profile := instance.CreateAndInitWithProfile(profileArg.Get(), sketchPath, packageName)
 	if fqbnArg.String() == "" {
 		fqbnArg.Set(profile.GetFqbn())
 	}

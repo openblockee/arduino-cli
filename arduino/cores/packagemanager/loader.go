@@ -34,9 +34,9 @@ import (
 )
 
 // LoadHardware read all plaforms from the configured paths
-func (pm *Builder) LoadHardware() []error {
+func (pm *Builder) LoadHardware(packageName string) []error {
 	hardwareDirs := configuration.HardwareDirectories(configuration.Settings)
-	merr := pm.LoadHardwareFromDirectories(hardwareDirs)
+	merr := pm.LoadHardwareFromDirectories(hardwareDirs, packageName)
 
 	bundleToolDirs := configuration.BuiltinToolsDirectories(configuration.Settings)
 	merr = append(merr, pm.LoadToolsFromBundleDirectories(bundleToolDirs)...)
@@ -45,16 +45,16 @@ func (pm *Builder) LoadHardware() []error {
 }
 
 // LoadHardwareFromDirectories load plaforms from a set of directories
-func (pm *Builder) LoadHardwareFromDirectories(hardwarePaths paths.PathList) []error {
+func (pm *Builder) LoadHardwareFromDirectories(hardwarePaths paths.PathList, packageName string) []error {
 	var merr []error
 	for _, path := range hardwarePaths {
-		merr = append(merr, pm.LoadHardwareFromDirectory(path)...)
+		merr = append(merr, pm.LoadHardwareFromDirectory(path, packageName)...)
 	}
 	return merr
 }
 
 // LoadHardwareFromDirectory read a plaform from the path passed as parameter
-func (pm *Builder) LoadHardwareFromDirectory(path *paths.Path) []error {
+func (pm *Builder) LoadHardwareFromDirectory(path *paths.Path, packageName string) []error {
 	var merr []error
 	pm.log.Infof("Loading hardware from: %s", path)
 	if err := path.ToAbs(); err != nil {
@@ -72,6 +72,14 @@ func (pm *Builder) LoadHardwareFromDirectory(path *paths.Path) []error {
 	}
 	packagersPaths.FilterOutHiddenFiles()
 	packagersPaths.FilterDirs()
+
+	// If fqbn is specified, filter out unused hardware package paths to prevent
+	// these paths from being scanned and parsed to optimize the running performance
+	// of the program on stick
+	if packageName != "" {
+		candidatePathNames := []string{packageName, "builtin"}
+		packagersPaths.FilterPrefix(candidatePathNames...)
+	}
 
 	// Load custom platform properties if available
 	// "Global" platform.txt used to overwrite all installed platforms.

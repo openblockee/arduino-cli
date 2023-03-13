@@ -27,7 +27,7 @@ func (s *HardwareLoader) Run(ctx *types.Context) error {
 		// This should happen only on legacy arduino-builder.
 		// Hopefully this piece will be removed once the legacy package will be cleanedup.
 		pmb := packagemanager.NewBuilder(nil, nil, nil, nil, "arduino-builder")
-		errs := pmb.LoadHardwareFromDirectories(ctx.HardwareDirs)
+		errs := pmb.LoadHardwareFromDirectories(ctx.HardwareDirs, "")
 		if ctx.Verbose {
 			// With the refactoring of the initialization step of the CLI we changed how
 			// errors are returned when loading platforms and libraries, that meant returning a list of
